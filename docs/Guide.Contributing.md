@@ -129,7 +129,7 @@ If you add, rename, or delete a test in `detox/test/e2e` suite, you should follo
 #### 3. Android Native tests
 
 0. Install Java and Android SDK 25
-1. In `detox/android` run `./gradlew install` run
+1. In `detox/android/Detox` run `./gradlew install` run
 
 	```sh
 	./gradlew test

@@ -12,3 +12,6 @@
 [submodule "detox/ios/DTXLoggingInfra"]
 	path = detox/ios/DTXLoggingInfra
 	url = https://github.com/wix/DTXLoggingInfra.git
+[submodule "detox/android/android-test"]
+	path = detox/android/android-test
+	url = https://github.com/android/android-test.git

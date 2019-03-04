@@ -12,7 +12,7 @@ function sanitize_matcher(matcher) {
 
   const originalMatcher = typeof matcher._call === 'function' ? matcher._call() : matcher._call;
   return originalMatcher.type ? originalMatcher.value : originalMatcher;
-}
+} 
 class ViewActions {
   static clearGlobalAssertions() {
     return {
@@ -47,7 +47,26 @@ class ViewActions {
     };
   }
 
-  static click() {
+  static click(inputDevice, buttonState) {
+    function click2(inputDevice, buttonState) {
+      if (typeof inputDevice !== "number") throw new Error("inputDevice should be a number, but got " + (inputDevice + (" (" + (typeof inputDevice + ")"))));
+      if (typeof buttonState !== "number") throw new Error("buttonState should be a number, but got " + (buttonState + (" (" + (typeof buttonState + ")"))));
+      return {
+        target: {
+          type: "Class",
+          value: "androidx.test.espresso.action.ViewActions"
+        },
+        method: "click",
+        args: [{
+          type: "Integer",
+          value: inputDevice
+        }, {
+          type: "Integer",
+          value: buttonState
+        }]
+      };
+    }
+
     function click0() {
       return {
         target: {
@@ -68,6 +87,10 @@ class ViewActions {
         method: "click",
         args: [rollbackAction]
       };
+    }
+
+    if (arguments.length === 2) {
+      return click2.apply(null, arguments);
     }
 
     if (arguments.length === 0) {
@@ -152,6 +175,17 @@ class ViewActions {
         value: "androidx.test.espresso.action.ViewActions"
       },
       method: "pressBack",
+      args: []
+    };
+  }
+
+  static pressBackUnconditionally() {
+    return {
+      target: {
+        type: "Class",
+        value: "androidx.test.espresso.action.ViewActions"
+      },
+      method: "pressBackUnconditionally",
       args: []
     };
   }

@@ -2,7 +2,7 @@
 
 source $(dirname "$0")/ci.sh
 
-pushd detox/android
+pushd detox/android/Detox
 run_f "./gradlew test"
 popd
 
