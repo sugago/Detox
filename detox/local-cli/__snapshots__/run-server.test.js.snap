@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`run-server throws if the port number is out of range 1`] = `"The port should be between 1 and 65535, got 99999"`;
+
+exports[`run-server throws if the port number is out of range 2`] = `"The port should be between 1 and 65535, got 100000"`;
+
+exports[`run-server throws if the port number is out of range 3`] = `"The port should be between 1 and 65535, got 0"`;
+
+exports[`run-server throws if the port number is out of range 4`] = `"The port should be between 1 and 65535, got NaN"`;

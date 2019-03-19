@@ -70,6 +70,17 @@ module.exports.builder = {
   'debug-synchronization': {
     alias: ['d', 'debugSynchronization'],
     group: 'Debugging',
+    coerce(value) {
+      if (value == null) {
+        return undefined;
+      }
+
+      if (value === true || value === 'true') {
+        return 3000;
+      }
+
+      return Number(value);
+    },
     describe:
       'When an action/expectation takes a significant amount of time use this option to print device synchronization status.' +
       'The status will be printed if the action takes more than [value]ms to complete'
@@ -149,10 +160,6 @@ module.exports.handler = function main(program) {
     throw new DetoxConfigError('Can not use -w, --workers. Parallel test execution is only supported on iOS currently');
   }
 
-  if (typeof program.debugSynchronization === 'boolean') {
-    program.debugSynchronization = 3000;
-  }
-
   function run() {
     switch (program.testRunner) {
       case 'mocha':
@@ -204,12 +211,13 @@ module.exports.handler = function main(program) {
     const color = program.color ? '' : '--no-colors';
     const deviceName = program.deviceName ? `--device-name "${program.deviceName}"` : '';
 
-    const debugSynchronization = program.debugSynchronization ? `--debug-synchronization ${program.debugSynchronization}` : '';
+    const debugSynchronization = isFinite(program.debugSynchronization) ? `--debug-synchronization ${program.debugSynchronization}` : '';
     const binPath = path.join('node_modules', '.bin', 'mocha');
-    const command =
-      `${binPath} ${configFile} ${configuration} ${loglevel} ${color} ` +
-      `${cleanup} ${reuse} ${debugSynchronization} ${platformString} ${headless} ${gpu}` +
-      `${logs} ${screenshots} ${videos} ${artifactsLocation} ${deviceName} ${collectExtraArgs()}`;
+    const command = _.compact([
+      binPath, configFile, configuration, loglevel, color,
+      cleanup, reuse, debugSynchronization, platformString, headless, gpu,
+      logs, screenshots, videos, artifactsLocation, deviceName, collectExtraArgs(),
+    ]).join(' ');
 
     console.log(command);
     cp.execSync(command, { stdio: 'inherit' });
@@ -221,7 +229,15 @@ module.exports.handler = function main(program) {
     const platformString = platform ? shellQuote(`--testNamePattern=^((?!${getPlatformSpecificString(platform)}).)*$`) : '';
     const binPath = path.join('node_modules', '.bin', 'jest');
     const color = program.color ? '' : ' --no-color';
-    const command = `${binPath} ${configFile}${color} --maxWorkers=${program.workers} ${platformString} ${collectExtraArgs()}`;
+    const command = _.compact([
+      binPath,
+      configFile,
+      color,
+      `--maxWorkers=${program.workers}`,
+      platformString,
+      collectExtraArgs()
+    ]).join(' ');
+
     const detoxEnvironmentVariables = {
       configuration: program.configuration,
       loglevel: program.loglevel,

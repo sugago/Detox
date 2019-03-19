@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`build when there are multiple configs should fail when configuration is not specified 1`] = `
+"Cannot determine which configuration to use. use --configuration to choose one of the following: 
+    only,myconf,noBuildConfig"
+`;
+
+exports[`build when there are multiple configs should fail when the build script is not found in the specified configuration 1`] = `"Could not find build script in detox.configurations[\\"noBuildConfig\\"].build"`;
+
+exports[`build when there are no detox configurations should fail with a user-friendly error 1`] = `"Cannot find detox.configurations in package.json"`;
+
+exports[`build when there is a single config should fail if the configuration is specified but not found 1`] = `"Could not find build script in detox.configurations[\\"nonexistent\\"].build"`;
+
+exports[`build when there is no detox section should fail with a user-friendly error 1`] = `"Cannot find detox section in package.json"`;

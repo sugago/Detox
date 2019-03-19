@@ -1,12 +1,21 @@
 #!/usr/bin/env node
+const fs = require('fs');
+const path = require('path');
 const yargs = require('yargs');
 
 yargs
   .scriptName('detox')
   .env('DETOX')
   .pkgConf('detox')
+  .default("config", path.join(process.cwd(), '.detoxrc'))
   .config('config', 'configuration either as JSON or as Javascript file', function(configPath) {
-    return require(configPath);
+    if (fs.existsSync(configPath)) {
+      try {
+        return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      } catch (e) {
+        return require(configPath);
+      }
+    }
   })
   .commandDir('./', {
     exclude: function(path) {
