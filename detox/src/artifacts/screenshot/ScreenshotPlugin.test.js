@@ -1,15 +1,19 @@
-jest.mock('../../../utils/logger.js');
-const TwoSnapshotsPerTestPlugin = require('./TwoSnapshotsPerTestPlugin');
-const ArtifactsApi = require('./__mocks__/ArtifactsApi.mock');
-const testSummaries = require('./__mocks__/testSummaries.mock');
+jest.mock('../../utils/argparse.js');
+jest.mock('../../utils/logger.js');
 
-describe('TwoSnapshotsPerTestPlugin', () => {
+const ScreenshotPlugin = require('./ScreenshotArtifactPlugin');
+const ArtifactsApi = require('../templates/plugin/__mocks__/ArtifactsApi.mock');
+const testSummaries = require('../templates/plugin/__mocks__/testSummaries.mock');
+
+describe('ScreenshotArtifactPlugin', () => {
   let api;
   let plugin;
+  let argparse;
 
   beforeEach(() => {
     api = new ArtifactsApi();
-    plugin = new FakeTwoSnapshotsPerTestPlugin({ api });
+    plugin = new FakeScreenshotPlugin({ api });
+    argparse = require('../../utils/argparse');
   });
 
   describe('when disabled', () => {
@@ -18,7 +22,7 @@ describe('TwoSnapshotsPerTestPlugin', () => {
     describe('onBeforeEach', () => {
       beforeEach(async () => plugin.onBeforeEach(testSummaries.running()));
 
-      it('should not create artifact onBeforeEach', async () =>
+      it('should not create beforeEach.png screenshot', async () =>
         expect(plugin.createTestArtifact).not.toHaveBeenCalled());
     });
 
@@ -161,7 +165,7 @@ describe('TwoSnapshotsPerTestPlugin', () => {
   });
 });
 
-class FakeTwoSnapshotsPerTestPlugin extends TwoSnapshotsPerTestPlugin {
+class FakeScreenshotPlugin extends ScreenshotPlugin {
   constructor(...args) {
     super(...args);
     this.enabled = true;

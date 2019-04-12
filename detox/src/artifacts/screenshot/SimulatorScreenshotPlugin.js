@@ -3,9 +3,9 @@ const fs = require('fs-extra');
 const log = require('../../utils/logger').child({ __filename });
 const tempfile = require('tempfile');
 const Artifact = require('../templates/artifact/Artifact');
-const ScreenshotArtifactPlugin = require('./ScreenshotArtifactPlugin');
+const ScreenshotPlugin = require('./ScreenshotPlugin');
 
-class SimulatorScreenshotter extends ScreenshotArtifactPlugin {
+class SimulatorScreenshotter extends ScreenshotPlugin {
   constructor(config) {
     super(config);
 

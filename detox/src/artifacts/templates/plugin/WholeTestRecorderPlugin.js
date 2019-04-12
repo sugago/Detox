@@ -27,14 +27,7 @@ class WholeTestRecorderPlugin extends ArtifactPlugin {
 
     if (this.testRecording) {
       await this.testRecording.stop();
-
-      if (this.shouldKeepArtifactOfTest(testSummary)) {
-        this._startSavingTestRecording(this.testRecording, testSummary)
-      } else {
-        this._startDiscardingTestRecording(this.testRecording);
-      }
-
-      this.testRecording = null;
+      this._startFinalizingTestRecording();
     }
   }
 
@@ -49,19 +42,36 @@ class WholeTestRecorderPlugin extends ArtifactPlugin {
    */
   async preparePathForTestArtifact(testSummary) {}
 
-  _startSavingTestRecording(testRecording, testSummary) {
+  _startFinalizingTestRecording() {
+    const {testSummary} = this.context;
+
+    switch (this.shouldKeepArtifactOfTest(testSummary)) {
+      case true: return this._startSavingTestRecording();
+      case false: return this._startDiscardingTestRecording();
+    }
+  }
+
+  _startSavingTestRecording() {
+    const {testRecording, context: {testSummary}} = this;
+
     this.api.requestIdleCallback(async () => {
       const recordingArtifactPath = await this.preparePathForTestArtifact(testSummary);
       await testRecording.save(recordingArtifactPath);
       this.api.untrackArtifact(testRecording);
     });
+
+    this.testRecording = null;
   }
 
-  _startDiscardingTestRecording(testRecording) {
+  _startDiscardingTestRecording() {
+    const {testRecording} = this;
+
     this.api.requestIdleCallback(async () => {
       await testRecording.discard();
       this.api.untrackArtifact(testRecording);
     });
+
+    this.testRecording = null;
   }
 }
 

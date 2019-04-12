@@ -208,34 +208,58 @@ describe(ArtifactPlugin, () => {
       expect(plugin.keepOnlyFailedTestsArtifacts).toBe(false);
     });
 
-    describe('if should not keep specifically failed test artifacts', () => {
+    describe('when plugin is not enabled', () => {
       beforeEach(() => {
-        plugin.keepOnlyFailedTestsArtifacts = false;
+        plugin.enabled = false;
       });
 
-      it('should return true for testSummary.status === running', () =>
-        expect(plugin.shouldKeepArtifactOfTest(testSummaries.running())).toBe(true));
+      describe('even if should keep artifacts', () => {
+        beforeEach(() => {
+          plugin.keepOnlyFailedTestsArtifacts = false;
+        });
 
-      it('should return true for testSummary.status === passed', () =>
-        expect(plugin.shouldKeepArtifactOfTest(testSummaries.passed())).toBe(true));
-
-      it('should return true for testSummary.status === failed', () =>
-        expect(plugin.shouldKeepArtifactOfTest(testSummaries.failed())).toBe(true));
+        it('should return false for any testSummary', () => {
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.failed())).toBe(false);
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.running())).toBe(false);
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.passed())).toBe(false);
+        });
+      });
     });
 
-    describe('if should keep only failed test artifacts', () => {
+    describe('when plugin is enabled', () => {
       beforeEach(() => {
-        plugin.keepOnlyFailedTestsArtifacts = true;
+        plugin.enabled = true;
       });
 
-      it('should return false for testSummary.status === running', () =>
-        expect(plugin.shouldKeepArtifactOfTest(testSummaries.running())).toBe(false));
+      describe('if should not keep specifically failed test artifacts', () => {
+        beforeEach(() => {
+          plugin.keepOnlyFailedTestsArtifacts = false;
+        });
 
-      it('should return false for testSummary.status === passed', () =>
-        expect(plugin.shouldKeepArtifactOfTest(testSummaries.passed())).toBe(false));
+        it('should return undefined for testSummary.status === running', () =>
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.running())).toBe(undefined));
 
-      it('should return true for testSummary.status === failed', () =>
-        expect(plugin.shouldKeepArtifactOfTest(testSummaries.failed())).toBe(true));
+        it('should return true for testSummary.status === passed', () =>
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.passed())).toBe(true));
+
+        it('should return true for testSummary.status === failed', () =>
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.failed())).toBe(true));
+      });
+
+      describe('if should keep only failed test artifacts', () => {
+        beforeEach(() => {
+          plugin.keepOnlyFailedTestsArtifacts = true;
+        });
+
+        it('should return undefined for testSummary.status === running', () =>
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.running())).toBe(undefined));
+
+        it('should return false for testSummary.status === passed', () =>
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.passed())).toBe(false));
+
+        it('should return true for testSummary.status === failed', () =>
+          expect(plugin.shouldKeepArtifactOfTest(testSummaries.failed())).toBe(true));
+      });
     });
   });
 });

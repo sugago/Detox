@@ -9,7 +9,6 @@ class StartupAndTestRecorderPlugin extends WholeTestRecorderPlugin {
 
     this.startupRecording = null;
     this._isRecordingStartup = false;
-    this._hasFailingTests = false;
   }
 
   /***
@@ -32,8 +31,6 @@ class StartupAndTestRecorderPlugin extends WholeTestRecorderPlugin {
       this.api.trackArtifact(recording);
       this._isRecordingStartup = true;
     }
-
-    await super.onBeforeAll();
   }
 
   async onBeforeEach(testSummary) {
@@ -46,23 +43,13 @@ class StartupAndTestRecorderPlugin extends WholeTestRecorderPlugin {
   }
 
   async onAfterEach(testSummary) {
-    if (testSummary.status === 'failed') {
-      this._hasFailingTests = true;
-    }
-
     await super.onAfterEach(testSummary);
-
-    if (this.startupRecording) {
-      this._tryToFinalizeStartupRecording(false);
-    }
+    this._finalizeStartupRecording();
   }
 
   async onAfterAll() {
-    if (this.startupRecording) {
-      this._finalizeStartupRecording();
-    }
-
     await super.onAfterAll();
+    this._finalizeStartupRecording();
   }
 
   /***
@@ -77,41 +64,38 @@ class StartupAndTestRecorderPlugin extends WholeTestRecorderPlugin {
    */
   async preparePathForStartupArtifact() {}
 
-  _shouldKeepStartupRecording() {
-    if (this.keepOnlyFailedTestsArtifacts && !this._hasFailingTests) {
-      return false;
-    }
-
-    return true;
-  }
-
-  _tryToFinalizeStartupRecording(isExiting) {
-    if (this._shouldKeepStartupRecording()) {
-      this._startSavingStartupRecording(this.startupRecording);
-      this.startupRecording = null;
-    } else if (isExiting) {
-      this._startDiscardingStartupRecording(this.startupRecording);
-      this.startupRecording = null;
-    }
-  }
-
   _finalizeStartupRecording() {
-    this._tryToFinalizeStartupRecording(true);
+    if (!this.startupRecording) {
+      return;
+    }
+
+    switch (this.shouldKeepArtifactsOfTestSession()) {
+      case true: return this._startSavingStartupRecording();
+      case false: return this._startDiscardingStartupRecording();
+    }
   }
 
-  _startSavingStartupRecording(startupRecording) {
+  _startSavingStartupRecording() {
+    const {startupRecording} = this;
+
     this.api.requestIdleCallback(async () => {
       const artifactPath = await this.preparePathForStartupArtifact();
       await startupRecording.save(artifactPath);
       this.api.untrackArtifact(startupRecording);
     });
+
+    this.startupRecording = null;
   }
 
-  _startDiscardingStartupRecording(startupRecording) {
+  _startDiscardingStartupRecording() {
+    const {startupRecording} = this;
+
     this.api.requestIdleCallback(async () => {
       await startupRecording.discard();
       this.api.untrackArtifact(startupRecording);
     });
+
+    this.startupRecording = null;
   }
 }
 

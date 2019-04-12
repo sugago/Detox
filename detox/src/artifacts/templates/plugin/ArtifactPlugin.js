@@ -14,6 +14,7 @@ class ArtifactPlugin {
     this.context = {};
     this.enabled = false;
     this.keepOnlyFailedTestsArtifacts = false;
+    this.hasFailingTests = undefined;
     this._disableReason = '';
   }
 
@@ -202,6 +203,10 @@ class ArtifactPlugin {
    */
   async onAfterEach(testSummary) {
     this.context.testSummary = testSummary;
+
+    if (testSummary.status === 'failed') {
+      this.hasFailingTests = true;
+    }
   }
 
   /**
@@ -213,7 +218,10 @@ class ArtifactPlugin {
    */
   async onAfterAll() {
     this.context.testSummary = null;
-    this._logDisableWarning();
+
+    if (this.hasFailingTests === undefined) {
+      this.hasFailingTests = false;
+    }
   }
 
   /**
@@ -246,12 +254,36 @@ class ArtifactPlugin {
     }
   }
 
+  /***
+   * @protected
+   * @returns {boolean}
+   */
+  isInsideRunningTest() {
+    return !!this.context.testSummary;
+  }
+
   shouldKeepArtifactOfTest(testSummary) {
-    if (this.keepOnlyFailedTestsArtifacts && testSummary.status !== 'failed') {
+    if (!this.enabled) {
       return false;
     }
 
+    if (testSummary.status === 'running') {
+      return undefined;
+    }
+
+    if (this.keepOnlyFailedTestsArtifacts) {
+      return testSummary.status === 'failed';
+    }
+
     return true;
+  }
+
+  shouldKeepArtifactsOfTestSession() {
+    if (this.keepOnlyFailedTestsArtifacts) {
+      return this.hasFailingTests;
+    }
+
+    return this.enabled;
   }
 }
 
