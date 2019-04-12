@@ -4,28 +4,12 @@ const ArtifactPlugin = require('./ArtifactPlugin');
  * @abstract
  */
 class SnapshotPlugin extends ArtifactPlugin {
-  constructor({ api }) {
-    super({ api });
-
-    this.snapshots = {
-      perTest: {},
-      perSession: {},
-    };
-
-    this.startSavingSnapshot = this.startSavingSnapshot.bind(this);
-    this.startDiscardingSnapshot = this.startDiscardingSnapshot.bind(this);
-  }
-
-  async onBeforeEach(testSummary) {
-    this.context.testSummary = null;
-    this.flushSnapshots();
-
-    await super.onBeforeEach(testSummary);
-  }
 
   async onAfterEach(testSummary) {
     await super.onAfterEach(testSummary);
+
     this.flushSnapshots();
+    this.context.testSummary = null;
   }
 
   async onAfterAll() {
