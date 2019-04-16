@@ -37,9 +37,19 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', "${project(':detox').projectDir}/proguard-rules-app.pro"
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testProguardFiles 'proguard-rules-test.pro'
 
             signingConfig signingConfigs.release
+        }
+        releaseInstrum {
+            initWith release
+            matchingFallbacks = ['release']
+
+            proguardFiles "${project(':detox').projectDir}/proguard-rules-app.pro"
+        }
+        debug {
+            minifyEnabled false
         }
     }
 
