@@ -1,5 +1,6 @@
 package com.wix.detox
 
+import android.util.Log
 import androidx.test.espresso.IdlingResource
 import com.facebook.react.bridge.ReactContext
 import com.wix.detox.UTHelpers.yieldToOtherThreads
@@ -13,6 +14,7 @@ import java.util.*
 import java.util.concurrent.Executors
 import java.lang.reflect.InvocationTargetException
 import com.nhaarman.mockitokotlin2.*
+import java.util.logging.Logger
 
 open class DetoxActionHandlerTestBase {
     val params = "{\"mock\": \"params\"}"
@@ -112,8 +114,7 @@ class InvokeActionHandlerTest : DetoxActionHandlerTestBase() {
     // TODO reply with an actual result
     @Test fun `should reply with dummy result data`() {
         uut().handle(params, messageId)
-
-        verify(wsClient).sendAction(any(), argThat { size == 1 && this["result"] == "(null)" }, any())
+        verify(wsClient).sendAction(any(), argThat { size == 1 && this["result"] == null }, any())
     }
 
     @Test fun `should handle runtime errors`() {
